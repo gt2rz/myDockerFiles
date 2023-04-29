@@ -1,0 +1,50 @@
+services:
+    es01:
+        container_name: elastic-search-01
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+        volumes:
+            - esdata01:/usr/share/elasticsearch/data
+        ports:
+            - 9200:9200
+        environment:
+            - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+            - node.name=es01
+            - cluster.name=elastic-search-cluster
+            - cluster.initial_master_nodes=es01
+            # - cluster.initial_master_nodes=es01,es02
+            # - discovery.seed_hosts=es02
+            - ELASTIC_PASSWORD=123456789
+            - bootstrap.memory_lock=true
+            - xpack.security.enabled=false
+        mem_limit: 1073741824
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+        networks:
+            - elastic-network
+
+    kibana:
+        container_name: kibana-container
+        image: docker.elastic.co/kibana/kibana:latest
+        volumes:
+            - kibanadata:/usr/share/kibana/data
+            # - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+        ports:
+            - 5601:5601
+        environment:
+            - ELASTICSEARCH_HOSTS=${KIBANA_ELASTIC_URL_BASE}
+            - xpack.security.enabled=false
+        depends_on:
+            - es01
+
+volumes:
+    kibanadata:
+        driver: local
+
+    esdata01:
+        driver: local
+
+networks:
+    elastic-network:
+        driver: bridge

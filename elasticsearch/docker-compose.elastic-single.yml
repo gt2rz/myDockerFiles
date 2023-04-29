@@ -1,0 +1,19 @@
+services:
+    es01:
+        container_name: ${ELASTIC_CONTAINER_NAME}
+        image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+        volumes:
+            - esdata01:/usr/share/elasticsearch/data
+        ports:
+            - 9200:9200
+            - 9300:9300
+        environment:
+            - node.name=es01
+            - discovery.type=${DISCOVERY_TYPE}
+            - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+            - ELASTIC_USERNAME=${ELASTIC_USERNAME}
+            - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+        mem_limit: ${ELASTIC_MEMORY_LIMIT}
+volumes:
+    esdata01:
+        driver: local
